@@ -7,29 +7,47 @@ let SmithersComputer = function() {
     self.outroTrack = "sounds/testsoundoutro.mp3";
     self.name = null;
 
+    self.burnsOpenImage = "images/burns-opened.png";
+    self.burnsClosedImage = "images/burns-closed.png";
+
     self.introSound = null;
     self.outroSound = null;
 
-    self.TurnOn = function(name) {
-
-        //self.name = name;
+    self.TurnOn = function() {
 
         self.PlayIntro();
 
     };
 
+    self.MakeImageTalk = function() {
+        console.log("image start")
+        $("#burns-image").attr({ src : self.burnsOpenImage });
+    }
+    self.MakeImageStop = function() {
+        console.log("image stop")
+        $("#burns-image").attr({ src : self.burnsClosedImage });
+    }
+
     self.PlayIntro = function() {
         console.log("playing intro");
-        //self.introSound.play();
+        self.introSound.play();
 
-        const utterThis = new SpeechSynthesisUtterance("Hello");
-        synth.speak(utterThis);
-        self.SayName();
+        // self.MakeImageTalk();
+        // setTimeout(self.MakeImageStop , 1000);
+
+        // const utterThis = new SpeechSynthesisUtterance("Hello");
+        // synth.speak(utterThis);
+        // self.SayName();
     }
 
     self.SayName = function() {
+        
+        self.MakeImageTalk();
+        setTimeout(self.MakeImageStop , 500);
+
         const utterThis = new SpeechSynthesisUtterance(self.name);
         synth.speak(utterThis);
+        
         self.PlayOutro();
     }
 
@@ -47,6 +65,7 @@ let SmithersComputer = function() {
     }
 
     self.AutoStart = function() {
+        console.log("in auto start self.outroLoaded " + self.outroLoaded + " and self.introLoaded " + self.introLoaded)
         if(self.outroLoaded === true && self.introLoaded === true && self.name !== null) {
             console.log("auto starting");
             self.TurnOn();
