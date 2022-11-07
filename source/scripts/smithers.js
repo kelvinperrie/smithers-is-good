@@ -3,8 +3,8 @@ const synth = window.speechSynthesis;
 let SmithersComputer = function() {
     var self = this;
 
-    self.introTrack = "sounds/testsoundintro.mp3";
-    self.outroTrack = "sounds/testsoundoutro.mp3";
+    self.introTrack = "sounds/Long Hello.mp3";
+    self.outroTrack = "sounds/Quite Good.mp3";
     self.name = null;
 
     self.burnsOpenImage = "images/burns-opened.png";
@@ -13,7 +13,9 @@ let SmithersComputer = function() {
     self.introSound = null;
     self.outroSound = null;
 
-    self.TurnOn = function() {
+    self.TurnOn = function(name) {
+
+        self.name = name;
 
         self.PlayIntro();
 
@@ -30,6 +32,8 @@ let SmithersComputer = function() {
 
     self.PlayIntro = function() {
         console.log("playing intro");
+        self.MakeImageTalk();
+        setTimeout(self.MakeImageStop , 500);
         self.introSound.play();
 
         // self.MakeImageTalk();
@@ -46,17 +50,54 @@ let SmithersComputer = function() {
         setTimeout(self.MakeImageStop , 500);
 
         const utterThis = new SpeechSynthesisUtterance(self.name);
+        utterThis.addEventListener('end', (event) => {
+            self.PlayOutro();
+          });
         synth.speak(utterThis);
         
-        self.PlayOutro();
+        //self.PlayOutro();
     }
 
     self.PlayOutro = function() {
         console.log("playing outro");
-        //self.outroSound.play();
+        self.outroSound.play();
 
-        const utterThis = new SpeechSynthesisUtterance("You're quite good, at turning me on");
-        synth.speak(utterThis);
+        self.MakeImageTalk();
+        // holy lols
+        setTimeout(function() { 
+            self.MakeImageStop(); 
+            setTimeout(function() { 
+                self.MakeImageTalk(); 
+                setTimeout(function() { 
+                    self.MakeImageTalk(); 
+                    setTimeout(function() { 
+                        self.MakeImageStop(); 
+                        setTimeout(function() { 
+                            self.MakeImageTalk(); 
+                            setTimeout(function() { 
+                                self.MakeImageStop(); 
+                                setTimeout(function() { 
+                                    self.MakeImageTalk(); 
+                                    setTimeout(function() { 
+                                        self.MakeImageStop(); 
+                                        setTimeout(function() { 
+                                            self.MakeImageTalk(); 
+                                            setTimeout(function() { 
+                                                self.MakeImageStop(); 
+                                                
+                                            }, 500);
+                                        }, 300);
+                                    }, 300);
+                                }, 300);                                
+                            }, 300);
+                        }, 300);
+                    }, 300);
+                }, 300);
+            }, 300);
+        }, 100);
+
+        // const utterThis = new SpeechSynthesisUtterance("You're quite good, at turning me on");
+        // synth.speak(utterThis);
     }
 
     self.UpdateNameFromParam = function(nameFromParam) {
@@ -90,8 +131,8 @@ let SmithersComputer = function() {
                 self.SayName();
             },
             onload : function() {
-                self.introLoaded = true;
-                self.AutoStart();
+                //self.introLoaded = true;
+                //self.AutoStart();
             }
         });
 
@@ -103,8 +144,8 @@ let SmithersComputer = function() {
                 console.log('outro stopped!');
             },
             onload : function() {
-                self.outroLoaded = true;
-                self.AutoStart();
+                //self.outroLoaded = true;
+                //self.AutoStart();
             }
         });
 
@@ -122,7 +163,8 @@ $(document).ready(function() {
 
         let textToSay = $(".name-input").val();;
 
-        computer.SubmitNewName(textToSay);
+        computer.TurnOn(textToSay);
+        //computer.SubmitNewName(textToSay);
     });
 
 });
