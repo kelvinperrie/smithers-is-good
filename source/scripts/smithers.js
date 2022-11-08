@@ -16,8 +16,10 @@ let SmithersComputer = function() {
     self.TurnOn = function(name) {
 
         self.name = name;
+        $(".login-prompt").hide();
 
-        self.PlayIntro();
+        self.MakeImageStop();
+        setTimeout(self.PlayIntro , 1000);
 
     };
 

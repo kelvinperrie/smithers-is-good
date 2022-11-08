@@ -1,5 +1,50 @@
 
+html {
+    font-family: "akbar_plain";
+}
 
+.turn-on-button {
+    font-family: "akbar_plain";
+    font-size: 1.2em;
+    margin-top: 0.4em;
+}
+
+.name-input {
+    font-family: "akbar_plain";
+    font-size: 1.2em;
+    letter-spacing: 0.2em;
+    
+    text-align: center;
+}
+
+#burns-image {
+    width: 100%;
+}
+
+.burns-container{
+    margin: auto;
+    max-width: 999px;
+    position: relative;
+}
+
+.prompt-text {
+    padding-top: 1em;
+    margin-bottom: 0.4em;
+}
+
+.login-prompt{ 
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 350px;
+    height: 150px;
+    text-align: center;
+    font-size: 1.2em;;
+    background-image: url("../images/login-prompt.png");
+}
 
 .github-link {
     bottom: 1em;
@@ -7,3 +52,11 @@
     position: absolute;
 }
 
+@font-face {
+    font-family: 'akbar_plain';
+    src: url('../fonts/simpsonfont-webfont.woff2') format('woff2'),
+         url('../fonts/simpsonfont-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
