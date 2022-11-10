@@ -155,18 +155,39 @@ let SmithersComputer = function() {
     };
 }
 
+let CommandPrompt = function() {
+    var self = this;
+
+
+}
+
 
 $(document).ready(function() {
 
     let computer = new SmithersComputer();
     computer.Initialize();
 
-    $(".turnOnTrigger").click(function() {
+    // for testing
+    //$("#command-container").show();
 
+
+    // see if they press the enter key on the login prompt
+    $(".name-input").on('keypress',function(e) {
+        if(e.which == 13) {
+            DoLogon();
+        }
+    });
+
+    $(".turnOnTrigger").click(function() {
+        DoLogon();
+    });
+
+    function DoLogon() {
         let textToSay = $(".name-input").val();;
 
         computer.TurnOn(textToSay);
         //computer.SubmitNewName(textToSay);
-    });
+
+    }
 
 });
