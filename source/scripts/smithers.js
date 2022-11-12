@@ -177,12 +177,116 @@ let SmithersComputer = function() {
     };
 }
 
+let File = function(fileData) {
+    var self = this;
+
+    self.name = fileData.name;
+    self.type = "file";
+}
+
+let Directory = function(directoryData, parent) {
+    var self = this;
+
+    self.name = directoryData.name;
+    self.parent = parent;
+    self.contents = [];
+    self.type = "directory";
+
+    for (const content of directoryData.contents){
+        if(content.type === "file") {
+            var newFile = new File(content);
+            self.contents.push(newFile);
+        } else if(content.type === "directory") {
+            var newDir = new Directory(content, self);
+            self.contents.push(newDir);
+        }
+    }
+}
+
+let FileSystem = function() {
+    var self = this;
+
+    self.structureData = [
+        {
+            name: "FirstFolder",
+            type: "directory",
+            contents: [
+                {
+                    name: "SubFolder",
+                    type: "directory",
+                    contents: []
+                }
+            ]
+        },
+        {
+            name: "SecondFolder",
+            type: "directory",
+            contents: [
+                {
+                    name: "CoolFile",
+                    type: "file"
+                }
+            ]
+        },
+        {
+            name: "virus.exe",
+            type: "file"
+        },
+        {
+            name: "crash.bat",
+            type: "file"
+        }
+    ]
+    let structure = new Directory({ name : "C:", type: "directory", contents: self.structureData });
+    self.currentDirectory = structure;
+    console.log(self.structure);
+
+    self.GetCurrentPath = function() {
+        let path = [self.currentDirectory.name];
+        let navDir = self.currentDirectory;
+        while(navDir.parent != null) {
+            navDir = navDir.parent;
+            path.unshift(navDir.name);
+        }
+        console.log(path);
+        return path.join("/");
+    }
+
+    self.GoToChildDirectory = function(name) {
+        for (const childDirectory of self.currentDirectory.contents){
+            console.log("compare child called " + childDirectory.name + " with wanted folder of " + name)
+            if(childDirectory.name.toLowerCase() === name.toLowerCase()) {
+                self.currentDirectory = childDirectory;
+                return self.GetCurrentPath();
+            }
+        }
+        return "no such folder";
+    }
+    
+    self.GoToParentDirectory = function() {
+        if(self.currentDirectory.parent != null) {
+            self.currentDirectory = self.currentDirectory.parent;
+        }
+        return self.GetCurrentPath();
+    }
+
+    self.ListCurrentDirectoryContents = function() {
+        let contents = [];
+        for (const content of self.currentDirectory.contents){
+            let name = content.type === "directory" ? "&lt;DIR&gt; "+content.name : content.name
+            contents.push(name);
+        }
+        return contents;
+    }
+}
+
 let CommandPrompt = function(logOutCallback) {
     var self = this;
 
     self.output = "";
     self.currentCommand = "";
     self.logOutCallback = logOutCallback;
+    self.fileSytem = new FileSystem();
 
     // called on a key press
     self.ReceiveInput = function(event) {
@@ -191,6 +295,13 @@ let CommandPrompt = function(logOutCallback) {
         }
         if(event.key.length === 1) {
             self.RecordInput(event.key);
+        }
+    }
+    self.ProcessDelete = function() {
+        if(self.currentCommand.length > 0) {
+            self.currentCommand = self.currentCommand.slice(0, -1);
+            let newOUtput = $(".commandOutput").html().slice(0, -1);
+            $(".commandOutput").html(newOUtput);
         }
     }
 
@@ -222,10 +333,21 @@ let CommandPrompt = function(logOutCallback) {
             self.logOutCallback();
         } else if(command === "cls") {
             self.CommandClearScreen();
+        } else if(command === "dir") {
+            let contents = self.fileSytem.ListCurrentDirectoryContents()
+            self.PutTextIntoOutput(contents);
         } else if(command === "pwd") {
-            self.PutTextIntoOutput("Errrrrrrror, disk corruption detected </br>");
+            var path = self.fileSytem.GetCurrentPath();
+            self.PutTextIntoOutput(path + "</br>");
+            //self.PutTextIntoOutput("Errrrrrrror, disk corruption detected </br>");
+        } else if(command === "cd..") {
+            let path = self.fileSytem.GoToParentDirectory();
+            self.PutTextIntoOutput(path + "</br>");
         } else if(command.startsWith("cd ")) {
-            self.PutTextIntoOutput("Errrrrrrror, disk corruption detected </br>");
+            let parts = command.split(" ");
+            let result = self.fileSytem.GoToChildDirectory(parts[1]);
+            self.PutTextIntoOutput(result + "</br>");
+            //self.PutTextIntoOutput("Errrrrrrror, disk corruption detected </br>");
         } else {
             self.PutTextIntoOutput("Unknown command </br>");
         }
@@ -263,9 +385,13 @@ let CommandPrompt = function(logOutCallback) {
     }
 
     $(document).ready(function() {
-        console.log("got it")
         $(document).on('keypress',function(e) {
             self.ReceiveInput(e);
+        });
+        $(document).keyup(function(e){
+            if(e.keyCode == 8) {
+                self.ProcessDelete();
+            }
         });
     });
     
