@@ -325,6 +325,7 @@ let CommandPrompt = function(logOutCallback) {
                 "help functions:",
                 "logout - logs you out",
                 "pwd - prints current directory",
+                "dir - list contents of current directory",
                 "cd - changes directory",
                 "cls - clear screen"
             ];
