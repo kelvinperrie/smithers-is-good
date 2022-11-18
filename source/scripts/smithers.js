@@ -420,6 +420,7 @@ $(document).ready(function() {
     // $("#command-container").show();
     // $(".login-prompt").hide();
     $("#command-container").hide();
+    $(".name-input").focus();
 
     // see if they press the enter key on the login prompt
     $(".name-input").on('keypress',function(e) {
