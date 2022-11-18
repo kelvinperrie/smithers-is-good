@@ -16,45 +16,38 @@ let SmithersComputer = function() {
 
     self.commandPrompt = null;
 
+    // method called when logon prompt submitted
+    // starts the animation / sounds
     self.TurnOn = function(name) {
-
         self.name = name;
         $(".login-prompt").hide();
 
         self.MakeImageStop();
         setTimeout(self.PlayIntro , 1000);
-
     };
 
+    // log out of the console, so show the logon prompt
     self.LogOut = function() {
-        $("#command-container").hide();
-        $(".login-prompt").show();
-        $(".name-input").focus();
+        self.ShowLogon();
     }
 
     self.MakeImageTalk = function() {
-        console.log("image start")
+        //console.log("image start")
         $("#burns-image").attr({ src : self.burnsOpenImage });
     }
     self.MakeImageStop = function() {
-        console.log("image stop")
+        //console.log("image stop")
         $("#burns-image").attr({ src : self.burnsClosedImage });
     }
 
+    // plays the "hello ..." burns sound
     self.PlayIntro = function() {
-        console.log("playing intro");
         self.MakeImageTalk();
         setTimeout(self.MakeImageStop , 500);
         self.introSound.play();
-
-        // self.MakeImageTalk();
-        // setTimeout(self.MakeImageStop , 1000);
-
-        // const utterThis = new SpeechSynthesisUtterance("Hello");
-        // synth.speak(utterThis);
-        // self.SayName();
     }
 
+    // use the browser's speech synthesis stuff to say whatever the name was that they entered
     self.SayName = function() {
         
         self.MakeImageTalk();
@@ -62,15 +55,15 @@ let SmithersComputer = function() {
 
         const utterThis = new SpeechSynthesisUtterance(self.name);
         utterThis.addEventListener('end', (event) => {
+            // when the name has finished being said then we play the outro
             self.PlayOutro();
           });
         synth.speak(utterThis);
         
-        //self.PlayOutro();
     }
 
     self.PlayOutro = function() {
-        console.log("playing outro");
+        //console.log("playing outro");
         self.outroSound.play();
 
         self.MakeImageTalk();
@@ -111,23 +104,7 @@ let SmithersComputer = function() {
         // synth.speak(utterThis);
     }
 
-    self.UpdateNameFromParam = function(nameFromParam) {
-        self.name = nameFromParam;
-        $(".name-input").val(self.name );
-    }
-
-    self.AutoStart = function() {
-        console.log("in auto start self.outroLoaded " + self.outroLoaded + " and self.introLoaded " + self.introLoaded)
-        if(self.outroLoaded === true && self.introLoaded === true && self.name !== null) {
-            console.log("auto starting");
-            self.TurnOn();
-        }
-    }
-
-    self.SubmitNewName = function(newName) {
-        window.location.href = window.location.href.split("?")[0] + "?name=" + newName ;
-    }
-
+    // show the console/command prompt stuff
     self.StartConsole = function() {
         $("#burns-image").attr({ src : self.backgroundImage });
         $("#command-container").show();
@@ -135,45 +112,66 @@ let SmithersComputer = function() {
         self.commandPrompt.InitializePrompt(self.name);
     }
 
+    // show the login page
+    self.ShowLogon = function() {
+        $("#command-container").hide();
+        $(".login-prompt").show();
+        $(".name-input").val("");
+        $(".name-input").focus();
+    }
+
     self.Initialize = function() {
 
         self.commandPrompt = new CommandPrompt(self.LogOut);
 
-        var url = new URL(window.location);
-        var nameFromParam = url.searchParams.get("name");
-        self.UpdateNameFromParam(nameFromParam);
-
-
+        // setup our intro sound - the "hello ..."
         var introSound = new Howl({
             src: [self.introTrack],
             onend : function() {
-                console.log('intro stopped!');
+                //console.log('intro stopped!');
+                // call the method to say the name that was typed in
                 self.SayName();
-            },
-            onload : function() {
-                //self.introLoaded = true;
-                //self.AutoStart();
             }
         });
-
         self.introSound = introSound;
 
+        // setup the outro sound - the "... you're quite good at turning me on"
         var outroSound = new Howl({
             src: [self.outroTrack],
             onend : function() {
-                console.log('outro stopped!');
+                // the logon sequence has finished, wait a bit then show the console
                 setTimeout(function() { 
                     self.StartConsole();
-                    
                 }, 2000);
-            },
-            onload : function() {
-                //self.outroLoaded = true;
-                //self.AutoStart();
             }
         });
-
         self.outroSound = outroSound;
+
+        // setup keyboard and mouse hooks
+        $(document).ready(function() {
+            // see if they press the enter key on the login prompt
+            $(".name-input").on('keypress',function(e) {
+                if(e.which == 13) {
+                    DoLogon();
+                }
+            });
+
+            // see if they press the 'log on' button
+            $(".turnOnTrigger").click(function() {
+                DoLogon();
+            });
+
+            function DoLogon() {
+                let textToSay = $(".name-input").val();;
+                self.TurnOn(textToSay);
+            }
+
+            self.ShowLogon();
+            // for testing
+            // $("#command-container").show();
+            // $(".login-prompt").hide();
+
+        })
     };
 }
 
@@ -415,31 +413,5 @@ $(document).ready(function() {
 
     let computer = new SmithersComputer();
     computer.Initialize();
-
-    // for testing
-    // $("#command-container").show();
-    // $(".login-prompt").hide();
-    $("#command-container").hide();
-    $(".name-input").focus();
-
-    // see if they press the enter key on the login prompt
-    $(".name-input").on('keypress',function(e) {
-        if(e.which == 13) {
-            DoLogon();
-        }
-    });
-
-
-    $(".turnOnTrigger").click(function() {
-        DoLogon();
-    });
-
-    function DoLogon() {
-        let textToSay = $(".name-input").val();;
-
-        computer.TurnOn(textToSay);
-        //computer.SubmitNewName(textToSay);
-
-    }
 
 });
