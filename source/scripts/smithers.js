@@ -132,7 +132,7 @@ let SmithersComputer = function() {
         $("#burns-image").attr({ src : self.backgroundImage });
         $("#command-container").show();
         $(".login-prompt").hide();
-        self.commandPrompt.CommandClear();
+        self.commandPrompt.InitializePrompt(self.name);
     }
 
     self.Initialize = function() {
@@ -385,6 +385,17 @@ let CommandPrompt = function(logOutCallback) {
         }
     }
 
+    self.InitializePrompt = function(loginName) {
+        let welcomeText = [
+            "Welcome " + loginName + "!",
+            "",
+            "For help type 'help'"
+        ];
+        self.CommandClear();
+        self.PutTextIntoOutput(welcomeText);
+        self.EnsureInputDefault();
+    }
+
     $(document).ready(function() {
         $(document).on('keypress',function(e) {
             self.ReceiveInput(e);
@@ -406,8 +417,9 @@ $(document).ready(function() {
     computer.Initialize();
 
     // for testing
-    $("#command-container").show();
-    $(".login-prompt").hide();
+    // $("#command-container").show();
+    // $(".login-prompt").hide();
+    $("#command-container").hide();
 
     // see if they press the enter key on the login prompt
     $(".name-input").on('keypress',function(e) {
