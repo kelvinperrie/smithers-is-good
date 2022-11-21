@@ -180,6 +180,7 @@ let File = function(fileData) {
 
     self.name = fileData.name;
     self.type = "file";
+    self.execute = fileData.execute;
 }
 
 let Directory = function(directoryData, parent) {
@@ -206,38 +207,54 @@ let FileSystem = function() {
 
     self.structureData = [
         {
-            name: "FirstFolder",
+            name: "Burns_Pics",
             type: "directory",
             contents: [
                 {
-                    name: "SubFolder",
-                    type: "directory",
-                    contents: []
+                    name: "burn04.jpg",
+                    type: "file",
+                    execute: function(output) { output("file encypted<br/>"); } 
+                },
+                {
+                    name: "too_hot_to_handle.jpg",
+                    type: "file",
+                    execute: function(output) { output("file encypted<br/>"); } 
                 }
             ]
         },
         {
-            name: "SecondFolder",
+            name: "PossibleWarCrimes",
             type: "directory",
             contents: [
                 {
-                    name: "CoolFile",
-                    type: "file"
+                    name: "NuclearWasteDumpSites.doc",
+                    type: "file",
+                    execute: function(output) { output("No application associated with this file type.<br/>"); }        
+                },
+                {
+                    name: "SchoolBus.txt",
+                    type: "file",
+                    execute: function(output) { output("At this time the effects of transporting radioactive material on the local school bus are unknown, but it [error file corrupt]<br/>"); }        
                 }
             ]
         },
         {
-            name: "virus.exe",
-            type: "file"
-        },
-        {
-            name: "crash.bat",
-            type: "file"
+            name: "notAvirus.exe",
+            type: "file",
+            execute: function(output) { output(["greeting from team b4d w01f - you have been haxed!!","We have encrypted all your imagfe files!","To geet access you must give us your rarest malibu stacey by 4pm"]); }
         }
     ]
     let structure = new Directory({ name : "C:", type: "directory", contents: self.structureData });
     self.currentDirectory = structure;
     console.log(self.structure);
+
+    self.GetFileInCurrentDirectory = function(fileName) {
+        for (const child of self.currentDirectory.contents){
+            if(child.name.toLowerCase() === fileName.toLowerCase() && child.type === "file") {
+                return child;
+            }
+        }
+    }
 
     self.GetCurrentPath = function() {
         let path = [self.currentDirectory.name];
@@ -253,7 +270,7 @@ let FileSystem = function() {
     self.GoToChildDirectory = function(name) {
         for (const childDirectory of self.currentDirectory.contents){
             console.log("compare child called " + childDirectory.name + " with wanted folder of " + name)
-            if(childDirectory.name.toLowerCase() === name.toLowerCase()) {
+            if(childDirectory.name.toLowerCase() === name.toLowerCase() && childDirectory.type === "directory") {
                 self.currentDirectory = childDirectory;
                 return self.GetCurrentPath();
             }
@@ -284,7 +301,7 @@ let CommandPrompt = function(logOutCallback) {
     self.output = "";
     self.currentCommand = "";
     self.logOutCallback = logOutCallback;
-    self.fileSytem = new FileSystem();
+    self.fileSytem = new FileSystem(); // one misspell and you can never go back
 
     // called on a key press
     self.ReceiveInput = function(event) {
@@ -338,7 +355,6 @@ let CommandPrompt = function(logOutCallback) {
         } else if(command === "pwd") {
             var path = self.fileSytem.GetCurrentPath();
             self.PutTextIntoOutput(path + "</br>");
-            //self.PutTextIntoOutput("Errrrrrrror, disk corruption detected </br>");
         } else if(command === "cd..") {
             let path = self.fileSytem.GoToParentDirectory();
             self.PutTextIntoOutput(path + "</br>");
@@ -346,9 +362,19 @@ let CommandPrompt = function(logOutCallback) {
             let parts = command.split(" ");
             let result = self.fileSytem.GoToChildDirectory(parts[1]);
             self.PutTextIntoOutput(result + "</br>");
-            //self.PutTextIntoOutput("Errrrrrrror, disk corruption detected </br>");
         } else {
-            self.PutTextIntoOutput("Unknown command </br>");
+            // maybe it's a filename they typed? heck if I know
+            let file = self.fileSytem.GetFileInCurrentDirectory(command);
+            if(file) {
+                if(file.execute) {
+                    let ex = file.execute;
+                    ex(self.PutTextIntoOutput);
+                } else {
+                    self.PutTextIntoOutput("file corrupt </br>");
+                }
+            } else {
+                self.PutTextIntoOutput("Unknown command </br>");
+            }
         }
     }
 
